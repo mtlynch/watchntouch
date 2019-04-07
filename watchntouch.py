@@ -2,13 +2,14 @@ import time
 import os
 
 from watchdog.observers import Observer
-from watchdog.observers.polling import PollingObserver# as Observer
+from watchdog.observers.polling import PollingObserver
 from watchdog import events
 from watchdog.tricks import LoggerTrick
 
 import argparse
 import logging
 import random
+import subprocess
 
 logger = logging.getLogger('watchntouch')
 
@@ -29,7 +30,7 @@ class PollingHandler(events.FileSystemEventHandler):
             return
 
         logger.debug("Re-touching file for event: %s" % event)
-        os.utime(event.src_path, None)
+        subprocess.Popen(["touch", event.src_path])
 
 
     on_modified = touch_file
