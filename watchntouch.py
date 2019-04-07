@@ -15,6 +15,7 @@ logger = logging.getLogger('watchntouch')
 
 
 class PollingHandler(events.FileSystemEventHandler):
+
     def __init__(self, options):
         self.options = options
         self.skip_next = set()
@@ -31,7 +32,6 @@ class PollingHandler(events.FileSystemEventHandler):
 
         logger.debug("Re-touching file for event: %s" % event)
         subprocess.Popen(["touch", event.src_path])
-
 
     on_modified = touch_file
     on_created = touch_file
@@ -58,6 +58,7 @@ class PollingHandler(events.FileSystemEventHandler):
 
 
 class NativeHandler(events.FileSystemEventHandler):
+
     def __init__(self, other, options):
         self.other = other
         self.options = options
@@ -67,59 +68,61 @@ class NativeHandler(events.FileSystemEventHandler):
         self.other.skip_next.add(event)
 
 
-
-
-
 def run():
     parser = argparse.ArgumentParser(
         description='Poll a directory for changes and re-touch changed paths '
-            'so that inotify-incapable mounts (like CIFS) receive inotify '
-            'events anyway.')
+        'so that inotify-incapable mounts (like CIFS) receive inotify '
+        'events anyway.')
 
-    parser.add_argument('-i', '--polling-interval',
+    parser.add_argument(
+        '-i',
+        '--polling-interval',
         default=1.0,
         help="Polling interval in seconds",
         type=float,
-        dest='interval'
-    )
-    parser.add_argument('-l', '--log-level',
+        dest='interval')
+    parser.add_argument(
+        '-l',
+        '--log-level',
         default=11,
         help="Logger verbosity level",
         type=int,
-        dest='loglevel'
-    )
+        dest='loglevel')
 
-    parser.add_argument("-r", "--simulate-rm",
+    parser.add_argument(
+        "-r",
+        "--simulate-rm",
         default=False,
         action='store_true',
         dest='simulate_rm',
         help="Simulate rm operations by natively flashing a path in/out of "
         "existance. Only use if you find your tools get confused when a file "
-        "disapeared from under them."
-    )
+        "disapeared from under them.")
 
-    parser.add_argument("-m", "--simulate-mv",
+    parser.add_argument(
+        "-m",
+        "--simulate-mv",
         default=False,
         action='store_true',
         dest='simulate_mv',
         help="Simulate mv operations by natively moving a path back and forth."
         " Only use if you find your tools require specific handling of"
-        " move events."
-    )
+        " move events.")
 
-    parser.add_argument('-w', '--watchdir',
+    parser.add_argument(
+        '-w',
+        '--watchdir',
         default=".",
         required=False,
         help="the directory to watch for changes",
-        dest="watchdir"
-    )
+        dest="watchdir")
 
     args = parser.parse_args()
 
     args.watchdir = os.path.realpath(os.path.abspath(args.watchdir))
 
-    logging.basicConfig(level=args.loglevel, format="%(message)s (%(levelname)s)\n")
-
+    logging.basicConfig(
+        level=args.loglevel, format="%(message)s (%(levelname)s)\n")
 
     logger.info("Watching %r", args.watchdir)
 
@@ -132,8 +135,8 @@ def run():
     native_observer.schedule(native_handler, path=args.watchdir, recursive=True)
     native_observer.start()
 
-
-    polling_observer.schedule(polling_handler, path=args.watchdir, recursive=True)
+    polling_observer.schedule(
+        polling_handler, path=args.watchdir, recursive=True)
     polling_observer.start()
 
     try:
@@ -144,10 +147,8 @@ def run():
         native_observer.stop()
         polling_observer.stop()
 
-
     native_observer.join()
     polling_observer.join()
-
 
 
 if __name__ == "__main__":
