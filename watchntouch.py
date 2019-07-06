@@ -34,7 +34,6 @@ class PollingHandler(events.FileSystemEventHandler):
         if is_ignored_path(event.src_path):
             logger.debug("Ignoring changes to ignored path: %s", event.src_path)
             return
-        elif 'images/resized' in event.src_path:
 
         if event in self.skip_next:
             logger.debug("Event on skiplist: %s" % event)
