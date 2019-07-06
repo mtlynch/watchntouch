@@ -14,6 +14,12 @@ import subprocess
 
 logger = logging.getLogger('watchntouch')
 
+def is_ignored_path(src_path):
+    for ignored in  ['_site', 'images/resized']:
+        if ignored in src_path:
+            return True
+    return False
+
 
 class PollingHandler(events.FileSystemEventHandler):
 
@@ -25,6 +31,10 @@ class PollingHandler(events.FileSystemEventHandler):
         if event.src_path == self.options.watchdir:
             logger.debug("Ignoring change to root watchdir...")
             return
+        if is_ignored_path(event.src_path):
+            logger.debug("Ignoring changes to ignored path: %s", event.src_path)
+            return
+        elif 'images/resized' in event.src_path:
 
         if event in self.skip_next:
             logger.debug("Event on skiplist: %s" % event)
@@ -85,7 +95,7 @@ def run():
     parser.add_argument(
         '-l',
         '--log-level',
-        default=11,
+        default=10,
         help="Logger verbosity level",
         type=int,
         dest='loglevel')
